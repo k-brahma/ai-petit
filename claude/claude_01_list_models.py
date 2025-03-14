@@ -14,9 +14,11 @@ client = anthropic.Anthropic(api_key=api_key)
 def main():
     print("利用可能なClaudeモデルのリストはAPIでは取得できません:")
     print("=" * 50)
-    print("最新のモデル情報は公式ドキュメントを参照してください: https://docs.anthropic.com/en/docs/about-claude/models")
+    print(
+        "最新のモデル情報は公式ドキュメントを参照してください: https://docs.anthropic.com/en/docs/about-claude/models"
+    )
     print("=" * 50)
 
 
 if __name__ == "__main__":
-    main() 
+    main()
