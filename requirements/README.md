@@ -4,7 +4,6 @@
 
 1. `base.txt`
 2. `main.txt`
-3. `test.txt`
 
 ## 背景:
 
@@ -13,8 +12,3 @@ Google Gemini を利用するのに必要なライブラリ `grpcio` は初回�
 ref: [PyPI google-generativeai](https://pypi.org/project/google-generativeai/)
 
 ついては、まずは `base.txt` で `grpcio` をインストールし、その後 `main.txt` で `google-generativeai` をインストールするようにしています。
-
-最後の `test.txt` はテスト用のライブラリをインストールするためのファイルです。  
-`pytest` の利用方法の心得がある方は `main.txt` のあとにインストールしても問題ありません。　　
-[参考: Pythonユニットテスト講座](https://forum.pc5bai.com/lesson/course/112/)
-

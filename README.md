@@ -44,7 +44,6 @@ pip install uv
 # uvを使用してパッケージをインストール
 uv pip install -r requirements/base.txt
 uv pip install -r requirements/main.txt
-uv pip install -r requirements/test.txt
 ```
 
 #### 通常のpipを使用する場合:
@@ -52,7 +51,6 @@ uv pip install -r requirements/test.txt
 ```bash
 pip install -r requirements/base.txt
 pip install -r requirements/main.txt
-pip install -r requirements/test.txt
 ```
 
 3. `.env` ファイルに Gemini API キーを設定します：

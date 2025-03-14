@@ -14,7 +14,6 @@ pip install uv
 echo "4. 必要なパッケージをインストールしています..."
 python -m uv pip install -r requirements/base.txt
 python -m uv pip install -r requirements/main.txt
-python -m uv pip install -r requirements/test.txt
 
 echo "セットアップが完了しました！"
 echo ""

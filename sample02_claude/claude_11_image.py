@@ -1,9 +1,8 @@
-import os
 import base64
+import os
 
 import anthropic
 from dotenv import load_dotenv
-from PIL import Image
 
 # 環境変数を読み込む
 load_dotenv()
@@ -15,12 +14,6 @@ client = anthropic.Anthropic(api_key=api_key)
 # モデルの設定
 # Claude 3 Vision対応モデル
 MODEL = "claude-3-opus-20240229"  # または "claude-3-sonnet-20240229" や "claude-3-haiku-20240307"
-
-
-def encode_image_to_base64(image_path):
-    """画像をbase64エンコードする関数"""
-    with open(image_path, "rb") as image_file:
-        return base64.b64encode(image_file.read()).decode("utf-8")
 
 
 def get_mime_type(image_path):
@@ -38,14 +31,12 @@ def get_mime_type(image_path):
 
 def analyze_image(image_path, prompt):
     """Claude APIを使用して画像を分析する関数"""
-    if not prompt or prompt.strip() == "":
-        return "空の入力は処理できません。何か質問やプロンプトを入力してください。"
+    # 画像をbase64エンコード
+    with open(image_path, "rb") as image_file:
+        base64_image = base64.b64encode(image_file.read()).decode("utf-8")
+    mime_type = get_mime_type(image_path)
 
     try:
-        # 画像をbase64エンコード
-        base64_image = encode_image_to_base64(image_path)
-        mime_type = get_mime_type(image_path)
-
         # APIリクエスト
         response = client.messages.create(
             model=MODEL,
@@ -58,8 +49,8 @@ def analyze_image(image_path, prompt):
                             "type": "image",
                             "source": {
                                 "type": "base64",
-                                "media_type": mime_type,
-                                "data": base64_image
+                                "media_type": mime_type,  # どんなデータを渡しているのか？
+                                "data": base64_image  # データの中身
                             }
                         },
                         {
@@ -70,7 +61,7 @@ def analyze_image(image_path, prompt):
                 }
             ]
         )
-        return response.content[0].text
+        return response
     except FileNotFoundError:
         return f"エラー: ファイル '{image_path}' が見つかりません"
     except Exception as e:
@@ -103,8 +94,8 @@ def main():
 
         print("\n分析中...\n")
         response = analyze_image(image_path, prompt)
-        print(response)
+        print(response.content[0].text)
 
 
 if __name__ == "__main__":
-    main() 
+    main()
