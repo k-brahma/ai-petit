@@ -1,7 +1,6 @@
 import os
-
-from dotenv import load_dotenv
 from openai import OpenAI
+from dotenv import load_dotenv
 
 # 環境変数を読み込む
 load_dotenv()
@@ -25,3 +24,18 @@ response = client.chat.completions.create(
 )
 
 print(response.choices[0].message.content)
+
+# 会話を続ける場合は、応答を履歴に追加
+messages.append({"role": "assistant", "content": response.choices[0].message.content})
+# 次のユーザー入力を追加
+messages.append({"role": "user", "content": "あなたは私の名前を知っていますか。"})
+
+print(messages)
+
+response = client.chat.completions.create(
+    model="gpt-4o",
+    messages=messages,
+)
+
+print(response.choices[0].message.content)
+

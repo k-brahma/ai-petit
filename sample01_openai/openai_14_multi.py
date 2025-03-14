@@ -86,40 +86,46 @@ def get_llm_response(instructions, input_text):
 
 
 if __name__ == "__main__":
-    print("漢方薬についてのチャットプログラム")
+    print("姓名判断プログラムを開始します")
     print("特別コマンド:")
     print("  - 'history': 会話履歴を表示")
     print("  - 'clear': 会話履歴をクリア")
     print("  - 'exit': プログラムを終了")
 
     # システム指示をセット（履歴には残さない）
-    system_instruction = "あなたは漢方の専門家です。質問に対して専門的かつわかりやすく回答してください。"
+    system_prompt = "あなたは姓名占いをする占い師です。大吉,中吉,吉,凶のうちのひとつを回答します。"
 
     while True:
-        user_input = input("\n漢方薬について何でも聞いてください: ")
+        user_prompt = input("\nあなたの氏名を入力してください: ")
 
         # 特別コマンドの処理
-        if user_input.lower() == "exit":
+        if user_prompt.lower() == "exit":
             print("プログラムを終了します")
             break
-        elif user_input.lower() == "history":
+        elif user_prompt.lower() == "history":
             print(display_history())
             continue
-        elif user_input.lower() == "clear":
+        elif user_prompt.lower() == "clear":
             print(clear_history())
             continue
 
-        if not user_input or user_input.strip() == "":
+        if not user_prompt or user_prompt.strip() == "":
             print("空の入力は処理できません。何か入力してください。")
             continue
 
         # ユーザー入力を履歴に追加
-        add_to_history("user", user_input)
+        add_to_history("user", user_prompt)
 
         print("\n回答を生成中...\n")
-        response = get_llm_response(system_instruction, user_input)
+        response = get_llm_response(system_prompt, user_prompt)
 
-        print(response)
+        # レスポンスがオブジェクトの場合とテキストの場合で処理を分ける
+        if hasattr(response, 'choices'):
+            output_text = response.choices[0].message.content
+            print(output_text)
+        else:
+            # エラーメッセージなどの場合
+            print(response)
 
         # 応答を履歴に追加
         add_to_history("assistant", response)

@@ -25,3 +25,17 @@ response = client.chat.completions.create(
 )
 
 print(response.choices[0].message.content)
+
+# 会話履歴を配列で管理
+messages = [
+    {"role": "system", "content": "あなたは姓名占いをする占い師です。大吉,中吉,吉,凶のうちのひとつを回答します。"},
+    {"role": "user", "content": "あなたは私の名前を知っていますか？"}
+]
+
+# 次の質問を実施
+response = client.chat.completions.create(
+    model="gpt-4o",
+    messages=messages
+)
+
+print(response.choices[0].message.content)
