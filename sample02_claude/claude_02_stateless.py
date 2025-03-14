@@ -21,3 +21,16 @@ response = client.messages.create(
 )
 
 print(response.content[0].text)
+
+response = client.messages.create(
+    model="claude-3-5-sonnet-20241022",
+    max_tokens=1000,
+    system="あなたは姓名占いをする占い師です。大吉,中吉,吉,凶のうちのひとつを回答します。",
+    messages=[
+        {"role": "user", "content": "私の名前を覚えていますか？"}
+    ],
+    temperature=0.7,
+)
+
+print(response.content[0].text)
+

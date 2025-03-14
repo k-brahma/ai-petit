@@ -68,18 +68,12 @@ def get_claude_response(input_text):
         # 会話履歴をフォーマット
         messages = format_messages_for_api()
 
-        # 新しい入力を追加 (履歴に保存された後のユーザー入力はこちらに含めない)
-        if not messages or messages[-1]["role"] != "user" or messages[-1]["content"] != input_text:
-            messages.append({"role": "user", "content": input_text})
+        messages.append({"role": "user", "content": input_text})
 
         response = client.messages.create(
             model="claude-3-5-sonnet-20241022",
             max_tokens=1000,
-            system="あなたは日本の伝統的な漢方医学の専門家です。長年の研究と臨床経験を持ち、東洋医学の知識が豊富です。"
-                   "質問に対して科学的根拠と伝統的な知恵の両方を活用して回答してください。"
-                   "患者の体質や症状に合わせた漢方薬の選び方、食事療法、生活習慣のアドバイスなどを提供できます。"
-                   "専門的でありながらも一般の人にもわかりやすい説明を心がけてください。"
-                   "前の会話の文脈を踏まえて回答してください。",
+            system="あなたは姓名占いをする占い師です。大吉,中吉,吉,凶のうちのひとつを回答します。",
             messages=messages,
             temperature=0.7,
         )
@@ -90,36 +84,35 @@ def get_claude_response(input_text):
 
 
 if __name__ == "__main__":
-    print("漢方専門家AIチャットプログラム")
+    print("姓名判断プログラムを開始します")
     print("特別コマンド:")
     print("  - 'history': 会話履歴を表示")
     print("  - 'clear': 会話履歴をクリア")
     print("  - 'exit': プログラムを終了")
-    print("-" * 50)
 
     while True:
-        user_input = input("\n漢方についての質問を入力してください: ")
+        user_prompt = input("\nあなたの氏名を入力してください: ")
 
         # 特別コマンドの処理
-        if user_input.lower() == "exit":
+        if user_prompt.lower() == "exit":
             print("プログラムを終了します")
             break
-        elif user_input.lower() == "history":
+        elif user_prompt.lower() == "history":
             print(display_history())
             continue
-        elif user_input.lower() == "clear":
+        elif user_prompt.lower() == "clear":
             print(clear_history())
             continue
 
-        if not user_input or user_input.strip() == "":
+        if not user_prompt or user_prompt.strip() == "":
             print("空の入力は処理できません。何か入力してください。")
             continue
 
         # ユーザー入力を履歴に追加
-        add_to_history("user", user_input)
+        add_to_history("user", user_prompt)
 
         print("\n回答を生成中...\n")
-        response = get_claude_response(user_input)
+        response = get_claude_response(user_prompt)
 
         # レスポンスがオブジェクトの場合と文字列の場合で処理を分ける
         if isinstance(response, str):
