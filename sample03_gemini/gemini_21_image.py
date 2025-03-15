@@ -1,7 +1,7 @@
 import os
 
-import google.generativeai as genai
 import PIL.Image
+import google.generativeai as genai
 from dotenv import load_dotenv
 
 # 環境変数を読み込む
@@ -12,7 +12,6 @@ api_key = os.getenv("GEMINI_API_KEY")
 genai.configure(api_key=api_key)
 
 # モデルの設定 (画像対応モデル)
-# エラーメッセージで推奨されたモデルを使用
 model = genai.GenerativeModel("gemini-1.5-flash")
 
 

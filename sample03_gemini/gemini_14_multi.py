@@ -10,32 +10,28 @@ import os
 import google.generativeai as genai
 from dotenv import load_dotenv
 
-# 環境変数を読み込む
 load_dotenv()
 
-# APIキーを設定
 api_key = os.getenv("GEMINI_API_KEY")
 genai.configure(api_key=api_key)
 
-# モデルの設定
-# 利用可能なモデルリストから確認したモデル名を使用
-# Gemini 1.5 Proを使用
-# モデルの設定 - temperatureパラメータを追加
 model = genai.GenerativeModel(
     "gemini-1.5-pro",
     generation_config={
-        "temperature": 0.7,  # 0.0〜1.0の間で設定（デフォルトは0.9）
+        "temperature": 0.7,
     }
 )
 
+chat = model.start_chat(history=[])
 
-def generate_text(prompt):
-    """Gemini APIを使用してテキストを生成する関数"""
+
+def get_gemini_response(prompt):
+    """Gemini APIを使用して会話履歴を含むレスポンスを取得する関数"""
     if not prompt or prompt.strip() == "":
         return "空の入力は処理できません。何か入力してください。"
 
     try:
-        response = model.generate_content(prompt)
+        response = chat.send_message(prompt)
         return response
     except Exception as e:
         error_message = str(e)
@@ -46,22 +42,35 @@ def generate_text(prompt):
 
 if __name__ == "__main__":
     print("Gemini AIチャットプログラム")
-    print("終了するには 'exit' と入力してください")
+    print("特別コマンド:")
+    print("  - 'history': 会話履歴を表示")
+    print("  - 'clear': 会話履歴をクリア")
+    print("  - 'exit': プログラムを終了")
     print("-" * 50)
 
     while True:
         user_input = input("\n質問や話題を入力してください: ")
 
+        # 特別コマンドの処理
         if user_input.lower() == "exit":
             print("プログラムを終了します")
             break
+        elif user_input.lower() == "history":
+            for message in chat.history:
+                print(f"Role: {message.role}")
+                print(f"Content: {message.parts[0].text}")
+                print("-" * 30)
+            continue
+        elif user_input.lower() == "clear":
+            chat = model.start_chat(history=[])
+            continue
 
         if not user_input or user_input.strip() == "":
             print("空の入力は処理できません。何か入力してください。")
             continue
 
         print("\n回答を生成中...\n")
-        response = generate_text(user_input)
+        response = get_gemini_response(user_input)
 
         # レスポンスがオブジェクトか文字列かで処理を分ける
         if isinstance(response, str):

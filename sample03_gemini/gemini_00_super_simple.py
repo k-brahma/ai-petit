@@ -17,11 +17,9 @@ load_dotenv()
 api_key = os.getenv("GEMINI_API_KEY")
 genai.configure(api_key=api_key)
 
-# モデルの設定
-# 利用可能なモデルリストから確認したモデル名を使用
-# Gemini 1.5 Proを使用
+# モデルの設定 Gemini 1.5 Proを使用
 model = genai.GenerativeModel("gemini-1.5-pro")
 
-response = model.generate_content("春先になると暖かくてうれしいですね")
+response = model.generate_content("私の名前は山田太郎です。名前占いをして！")
 
 print(response.text)
