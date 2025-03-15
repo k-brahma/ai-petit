@@ -25,6 +25,6 @@ def generate_text(user_prompt):
     return response
 
 
-response = generate_text("私の名前は山田太郎です。私の名前を占って！")
+response = generate_text("私の名前はです。私の名前を占って！")
 
 print(response.content[0].text)

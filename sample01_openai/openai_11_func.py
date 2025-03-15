@@ -14,7 +14,7 @@ def get_llm_response(system_prompt, user_prompt):
     # クライアントインスタンスを作成
     client = OpenAI(api_key=api_key)
 
-    # 会話履歴を配列で管理
+    # 会話履歴をリストで管理
     messages = [
         {"role": "system", "content": system_prompt},
         {"role": "user", "content": user_prompt},

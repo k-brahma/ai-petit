@@ -11,7 +11,7 @@ api_key = os.getenv("OPENAI_API_KEY")
 # クライアントインスタンスを作成
 client = OpenAI(api_key=api_key)
 
-# 会話履歴を配列で管理
+# 会話履歴をリストで管理
 messages = [
     {"role": "system", "content": "あなたは姓名占いをする占い師です。大吉,中吉,吉,凶のうちのひとつを回答します。"},
     {"role": "user", "content": "私の名前は山田太郎です。私の名前を占って！"}
