@@ -1,6 +1,6 @@
-# Gemini API プチプログラム
+# AI API プチプログラム
 
-Google の Gemini API を使用した簡単なプログラム集です。テキスト生成と画像分析の機能を提供します。
+Google の Gemini API に加え、OpenAI、Anthropic、Langchani の API を使用した簡単なプログラム集です。テキスト生成と画像分析の機能を提供します。
 
 ## セットアップ
 
@@ -53,10 +53,13 @@ pip install -r requirements/base.txt
 pip install -r requirements/main.txt
 ```
 
-3. `.env` ファイルに Gemini API キーを設定します：
+3. `.env` ファイルに各APIのキーを設定します：
 
 ```
-GEMINI_API_KEY=your_api_key_here
+GEMINI_API_KEY=your_gemini_api_key_here
+OPENAI_API_KEY=your_openai_api_key_here
+ANTHROPIC_API_KEY=your_anthropic_api_key_here
+LANGCHANI_API_KEY=your_langchani_api_key_here
 ```
 
 実際の API キーに書き換えてください。
@@ -83,7 +86,7 @@ source venv/bin/activate
 python gemini_app.py
 ```
 
-プロンプトを入力すると、Gemini API がテキストを生成します。
+プロンプトを入力すると、選択したAPIがテキストを生成します。
 終了するには `exit` と入力してください。
 
 ### 画像分析プログラム
@@ -94,7 +97,7 @@ python gemini_app.py
 python gemini_image.py
 ```
 
-画像ファイルのパスと、画像に対する質問やプロンプトを入力すると、Gemini API が画像を分析して回答します。
+画像ファイルのパスと、画像に対する質問やプロンプトを入力すると、選択したAPIが画像を分析して回答します。
 終了するには `exit` と入力してください。
 
 ## テストの実行
@@ -214,7 +217,7 @@ gemini-petit/
 
 ## 注意事項
 
-- Gemini API の利用には API キーが必要です。
-- API の利用には Google の利用規約が適用されます。
+- 各APIの利用にはそれぞれのAPIキーが必要です。
+- API の利用には各プロバイダーの利用規約が適用されます。
 - 画像分析には `PIL` ライブラリを使用しているため、対応している画像形式（JPG、PNG など）のみ使用できます。
 - 仮想環境を使用することで、システム全体に影響を与えずにパッケージをインストールできます。
