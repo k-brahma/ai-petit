@@ -46,6 +46,7 @@ htmlcov/
 # IDE
 .idea/
 .vscode/
+.cursor/
 *.sublime-project
 *.sublime-workspace
 global_python_settings.json 
