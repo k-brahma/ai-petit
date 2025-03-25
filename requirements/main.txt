@@ -3,6 +3,8 @@ google-generativeai==0.8.4
 openai==1.66.3
 python-dotenv==1.0.1
 pillow==11.1.0
+pdf2image==1.17.0
+PyPDF2==3.0.1 
 
 # LangChain
 langchain==0.3.20
