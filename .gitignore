@@ -49,4 +49,7 @@ htmlcov/
 .cursor/
 *.sublime-project
 *.sublime-workspace
-global_python_settings.json 
+global_python_settings.json
+
+# Project specific
+sample01_openai/results/ 
