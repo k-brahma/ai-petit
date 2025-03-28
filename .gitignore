@@ -53,3 +53,6 @@ global_python_settings.json
 
 # Project specific
 sample01_openai/results/ 
+sample02_claude/results/
+sample03_gemini/results/
+sample04_langchain/results/

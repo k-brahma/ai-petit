@@ -1,5 +1,5 @@
 """
-レシート画像の一括処理機能を提供するモジュール
+金額表記の正規化機能を追加したレシート一括処理モジュール
 
 このモジュールは、指定されたディレクトリ内のレシート画像を一括処理し、
 以下の情報を抽出してCSVとExcelファイルに保存します：
@@ -10,6 +10,7 @@
 
 特徴：
 - ディレクトリ内のJPG画像を一括処理
+- 金額表記の正規化（「数字+円」形式に統一）
 - 結果をCSVとExcelファイルに保存
 - エラーハンドリング機能付き
 - 進捗状況の表示
@@ -47,7 +48,17 @@ def analyze_receipt(image_path):
         # 画像を読み込む
         base64_image = encode_image(image_path)
 
-        prompt = """
+        system_prompt = """あなたはレシートの情報を正確に抽出するAIアシスタントです。
+金額の表記は必ず「数字+円」の形式で行ってください。
+例：820円、495円、460円、950円
+
+禁止事項：
+- 通貨記号（¥や￥）の使用
+- カンマ区切りの使用
+- 小数点以下の使用
+- 単位なしの数字のみの表記"""
+
+        user_prompt = """
         このレシートから以下の情報を抽出してください：
         1. 登録番号（登録番号もしくは事業者登録番号）
         2. 購入店名
@@ -61,15 +72,21 @@ def analyze_receipt(image_path):
             "総支払額": "金額",
             "消費税額": "金額"
         }
-        """
+
+        金額は必ず「数字+円」の形式で表記してください。
+        例：820円、495円、460円、950円"""
 
         response = openai.chat.completions.create(
             model="gpt-4o",
             messages=[
                 {
+                    "role": "system",
+                    "content": system_prompt
+                },
+                {
                     "role": "user",
                     "content": [
-                        {"type": "text", "text": prompt},
+                        {"type": "text", "text": user_prompt},
                         {
                             "type": "image_url",
                             "image_url": {
@@ -94,11 +111,43 @@ def analyze_receipt(image_path):
     except Exception as e:
         return json.dumps({"error": f"エラーが発生しました: {str(e)}"}, ensure_ascii=False, indent=2)
 
+def normalize_amount(amount_str):
+    """金額表記を正規化する関数"""
+    if not amount_str or not isinstance(amount_str, str):
+        return amount_str
+    
+    # 通貨記号とカンマを削除
+    amount_str = amount_str.replace('¥', '').replace('￥', '').replace(',', '')
+    
+    # 数字以外の文字を削除
+    amount = ''.join(filter(str.isdigit, amount_str))
+    
+    if not amount:
+        return amount_str
+    
+    # 数字+円の形式に変換
+    return f"{amount}円"
+
+def normalize_results(results):
+    """結果の金額表記を正規化する関数"""
+    normalized_results = []
+    for result in results:
+        normalized_result = result.copy()
+        if '総支払額' in normalized_result:
+            normalized_result['総支払額'] = normalize_amount(normalized_result['総支払額'])
+        if '消費税額' in normalized_result:
+            normalized_result['消費税額'] = normalize_amount(normalized_result['消費税額'])
+        normalized_results.append(normalized_result)
+    return normalized_results
+
 def save_results(results):
     """処理結果をCSVとExcelファイルに保存する関数"""
     if not results:
         print("警告: 保存する結果がありません")
         return
+    
+    # 金額表記を正規化
+    normalized_results = normalize_results(results)
     
     # 結果ディレクトリの作成（現在のモジュールのディレクトリに作成）
     current_dir = Path(__file__).parent
@@ -108,12 +157,12 @@ def save_results(results):
     # CSVファイルの作成
     csv_path = results_dir / "receipt_results.csv"
     with open(csv_path, 'w', newline='', encoding='utf-8-sig') as f:
-        writer = csv.DictWriter(f, fieldnames=results[0].keys())
+        writer = csv.DictWriter(f, fieldnames=normalized_results[0].keys())
         writer.writeheader()
-        writer.writerows(results)
+        writer.writerows(normalized_results)
     
     # Excelファイルの作成
-    df = pd.DataFrame(results)
+    df = pd.DataFrame(normalized_results)
     excel_path = results_dir / "receipt_results.xlsx"
     df.to_excel(excel_path, index=False)
     

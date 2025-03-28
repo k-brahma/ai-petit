@@ -26,15 +26,15 @@ import json
 import csv
 import pandas as pd
 from pathlib import Path
-import openai
+import anthropic
 from dotenv import load_dotenv
 
 # 環境変数を読み込む
 load_dotenv()
 
 # APIキーを設定
-api_key = os.getenv("OPENAI_API_KEY")
-openai.api_key = api_key
+api_key = os.getenv("ANTHROPIC_API_KEY")
+client = anthropic.Anthropic(api_key=api_key)
 
 def encode_image(image_path):
     """画像をbase64エンコードする関数"""
@@ -63,28 +63,32 @@ def analyze_receipt(image_path):
         }
         """
 
-        response = openai.chat.completions.create(
-            model="gpt-4o",
+        message = client.messages.create(
+            model="claude-3-opus-20240229",
+            max_tokens=1000,
             messages=[
                 {
                     "role": "user",
                     "content": [
-                        {"type": "text", "text": prompt},
                         {
-                            "type": "image_url",
-                            "image_url": {
-                                "url": f"data:image/jpeg;base64,{base64_image}"
+                            "type": "text",
+                            "text": prompt
+                        },
+                        {
+                            "type": "image",
+                            "source": {
+                                "type": "base64",
+                                "media_type": "image/jpeg",
+                                "data": base64_image
                             }
                         }
                     ]
                 }
-            ],
-            max_tokens=1000,
-            response_format={"type": "json_object"}
+            ]
         )
         
         # JSONレスポンスを解析
-        result = json.loads(response.choices[0].message.content)
+        result = json.loads(message.content[0].text)
         return json.dumps(result, ensure_ascii=False, indent=2)
 
     except FileNotFoundError:

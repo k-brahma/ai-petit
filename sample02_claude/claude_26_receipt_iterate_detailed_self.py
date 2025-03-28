@@ -1,19 +1,20 @@
 """
-金額表記の正規化機能を追加したレシート一括処理モジュール
+数値形式での金額処理機能を追加したレシート一括処理モジュール
 
 このモジュールは、指定されたディレクトリ内のレシート画像を一括処理し、
 以下の情報を抽出してCSVとExcelファイルに保存します：
 - 登録番号
 - 購入店名
-- 総支払額
-- 消費税額
+- 総支払額（数値形式）
+- 消費税額（数値形式）
 
 特徴：
 - ディレクトリ内のJPG画像を一括処理
-- 金額表記の正規化（「数字+円」形式に統一）
+- 金額を数値形式で保存（単位や記号なし）
 - 結果をCSVとExcelファイルに保存
 - エラーハンドリング機能付き
 - 進捗状況の表示
+- システムプロンプトによる厳密な指示
 
 使用方法：
 1. プログラムを実行
@@ -27,15 +28,15 @@ import json
 import csv
 import pandas as pd
 from pathlib import Path
-import openai
+import anthropic
 from dotenv import load_dotenv
 
 # 環境変数を読み込む
 load_dotenv()
 
 # APIキーを設定
-api_key = os.getenv("OPENAI_API_KEY")
-openai.api_key = api_key
+api_key = os.getenv("ANTHROPIC_API_KEY")
+client = anthropic.Anthropic(api_key=api_key)
 
 def encode_image(image_path):
     """画像をbase64エンコードする関数"""
@@ -49,14 +50,14 @@ def analyze_receipt(image_path):
         base64_image = encode_image(image_path)
 
         system_prompt = """あなたはレシートの情報を正確に抽出するAIアシスタントです。
-金額の表記は必ず「数字+円」の形式で行ってください。
-例：820円、495円、460円、950円
+金額は数字のみで表記してください（単位や記号なし）。
+例：820、495、460、950
 
 禁止事項：
 - 通貨記号（¥や￥）の使用
 - カンマ区切りの使用
 - 小数点以下の使用
-- 単位なしの数字のみの表記"""
+- 「円」などの単位の使用"""
 
         user_prompt = """
         このレシートから以下の情報を抽出してください：
@@ -73,35 +74,36 @@ def analyze_receipt(image_path):
             "消費税額": "金額"
         }
 
-        金額は必ず「数字+円」の形式で表記してください。
-        例：820円、495円、460円、950円"""
+        金額は数字のみで表記してください。
+        例：820、495、460、950"""
 
-        response = openai.chat.completions.create(
-            model="gpt-4o",
+        message = client.messages.create(
+            model="claude-3-opus-20240229",
+            max_tokens=1000,
+            system=system_prompt,
             messages=[
-                {
-                    "role": "system",
-                    "content": system_prompt
-                },
                 {
                     "role": "user",
                     "content": [
-                        {"type": "text", "text": user_prompt},
                         {
-                            "type": "image_url",
-                            "image_url": {
-                                "url": f"data:image/jpeg;base64,{base64_image}"
+                            "type": "text",
+                            "text": user_prompt
+                        },
+                        {
+                            "type": "image",
+                            "source": {
+                                "type": "base64",
+                                "media_type": "image/jpeg",
+                                "data": base64_image
                             }
                         }
                     ]
                 }
-            ],
-            max_tokens=1000,
-            response_format={"type": "json_object"}
+            ]
         )
         
         # JSONレスポンスを解析
-        result = json.loads(response.choices[0].message.content)
+        result = json.loads(message.content[0].text)
         return json.dumps(result, ensure_ascii=False, indent=2)
 
     except FileNotFoundError:
@@ -112,12 +114,12 @@ def analyze_receipt(image_path):
         return json.dumps({"error": f"エラーが発生しました: {str(e)}"}, ensure_ascii=False, indent=2)
 
 def normalize_amount(amount_str):
-    """金額表記を正規化する関数"""
+    """金額表記を正規化する関数（数値に変換）"""
     if not amount_str or not isinstance(amount_str, str):
         return amount_str
     
-    # 通貨記号とカンマを削除
-    amount_str = amount_str.replace('¥', '').replace('￥', '').replace(',', '')
+    # 通貨記号、カンマ、単位を削除
+    amount_str = amount_str.replace('¥', '').replace('￥', '').replace(',', '').replace('円', '')
     
     # 数字以外の文字を削除
     amount = ''.join(filter(str.isdigit, amount_str))
@@ -125,8 +127,8 @@ def normalize_amount(amount_str):
     if not amount:
         return amount_str
     
-    # 数字+円の形式に変換
-    return f"{amount}円"
+    # 数値に変換
+    return int(amount)
 
 def normalize_results(results):
     """結果の金額表記を正規化する関数"""
@@ -149,8 +151,9 @@ def save_results(results):
     # 金額表記を正規化
     normalized_results = normalize_results(results)
     
-    # 結果ディレクトリの作成
-    results_dir = Path("results")
+    # 結果ディレクトリの作成（現在のモジュールのディレクトリに作成）
+    current_dir = Path(__file__).parent
+    results_dir = current_dir / "results"
     results_dir.mkdir(exist_ok=True)
     
     # CSVファイルの作成
