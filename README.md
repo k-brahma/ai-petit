@@ -14,8 +14,7 @@ OpenAI、Anthropic、Gemini, Langchani の API を使用した簡単なプログ
 セットアップスクリプトは以下の処理を行います：
 1. Python仮想環境を作成
 2. 仮想環境を有効化
-3. uvをインストール
-4. 必要なパッケージをインストール
+3. 必要なパッケージをインストール
 
 ### 手動セットアップ
 
@@ -24,7 +23,7 @@ OpenAI、Anthropic、Gemini, Langchani の API を使用した簡単なプログ
 #### Windows:
 ```bash
 python -m venv venv
-venv\Scripts\activate.bat
+venv\Scripts\activate
 ```
 
 #### Linux/macOS:
@@ -35,25 +34,16 @@ source venv/bin/activate
 
 2. 必要なパッケージをインストールします：
 
-#### uvを使用する場合（推奨・高速）:
-
-```bash
-# uvのインストール
-pip install uv
-
-# uvを使用してパッケージをインストール
-uv pip install -r requirements/base.txt
-uv pip install -r requirements/main.txt
-```
-
-#### 通常のpipを使用する場合:
+#### pip install を実行
 
 ```bash
 pip install -r requirements/base.txt
 pip install -r requirements/main.txt
 ```
+3. `.env.sample` ファイルをコピーして `.env` を作ります
 
-3. `.env` ファイルに各APIのキーを設定します：
+
+4. `.env` ファイルに各APIのキーを設定します：
 
 ```
 GEMINI_API_KEY=your_gemini_api_key_here
@@ -63,21 +53,6 @@ LANGCHANI_API_KEY=your_langchani_api_key_here
 ```
 
 実際の API キーに書き換えてください。
-
-## 使い方
-
-プログラムを実行する前に、仮想環境を有効化してください：
-
-#### Windows:
-```bash
-venv\Scripts\activate.bat
-```
-
-#### Linux/macOS:
-```bash
-source venv/bin/activate
-```
-
 
 ## 注意事項
 
