@@ -119,6 +119,8 @@ def main():
         result_dict = json.loads(result_json)
         print(result_dict)
 
+        print(result_dict["購入店"])
+
 
 if __name__ == "__main__":
     main() 
